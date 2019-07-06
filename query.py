@@ -55,7 +55,12 @@ def get_config(path_to_cfg):
         PromThanosConfig['count'] = config.getint('config', 'count')
 
     if config.get('config', 'time_start'):
-        PromThanosConfig['time_start'] = config.getint('config', 'time_start')
+        time_start = config.get('config', 'time_start')
+        ts_timestamp = datetime.strptime(time_start, '%Y-%m-%d %H:%M:%S').timestamp()
+        PromThanosConfig['time_start'] = ts_timestamp
+
+    if config.get('config', 'show_query_result'):
+        PromThanosConfig['count'] = config.getint('config', 'show_query_result')
 
     return PromThanosConfig
 
@@ -74,9 +79,15 @@ def query(url, pql, time_start):
     return res, time_duration
 
 
-def query_all(prom_url, thanos_url, time_start, pql):
+def query_all(prom_url, thanos_url, time_start, pql, show_query_result=False):
     prom_res, prom_time_duration = query(prom_url, pql, time_start)
     thanos_res, thanos_time_duration = query(thanos_url, pql, time_start)
+
+    if show_query_result:
+        print("=" * 10 + "Prometheus: {}".format(pql) + "+" * 10)
+        print(prom_res.json())
+        print("=" * 10 + "Thanos: {}".format(pql) + "+" * 10)
+        print(thanos_res.json())
 
     return ResultCsvFormat._make(
         [
@@ -105,9 +116,10 @@ if __name__ == "__main__":
     PromThanosConfig = get_config(config_file)
 
     load_test_query = partial(query_all,
-                              PromThanosConfig['prometheus_server'],
-                              PromThanosConfig['thanos_server'],
-                              PromThanosConfig['time_start'])
+                              prom_url=PromThanosConfig['prometheus_server'],
+                              thanos_url=PromThanosConfig['thanos_server'],
+                              time_start=PromThanosConfig['time_start'],
+                              show_query_result=PromThanosConfig['show_query_result'])
 
     data = list()
     thanos_win = 0
