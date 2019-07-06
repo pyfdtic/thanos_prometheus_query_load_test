@@ -21,8 +21,8 @@ elif sys.version_info.major == 3:
 
 QUERY_URL = "/api/v1/query"
 headers = ['promql', 'winner',
-           'type', 'status', 'result_count', 'time_duration',
-           'type', 'status', 'result_count', 'time_duration',
+           'ptype', 'pstatus', 'presult_count', 'ptime_duration',
+           'ttype', 'tstatus', 'tresult_count', 'ttime_duration',
            'time']
 
 ResultCsvFormat = namedtuple('ResultCsv', headers)
@@ -131,14 +131,14 @@ if __name__ == "__main__":
         print(line_template.format(
             res.promql,
             res.winner,
-            res.type,
-            res.status,
-            res.result_count,
-            res.time_duration,
-            res.type,
-            res.status,
-            res.result_count,
-            res.time_duration,
+            res.ptype,
+            res.pstatus,
+            res.presult_count,
+            res.ptime_duration,
+            res.ttype,
+            res.tstatus,
+            res.tresult_count,
+            res.ttime_duration,
             res.time
         ))
         if res.winner == "thanos":
