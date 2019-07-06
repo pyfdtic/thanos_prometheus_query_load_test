@@ -122,7 +122,7 @@ if __name__ == "__main__":
         for pql in PromThanosConfig["promql"]:
             data.append(load_test_query(pql))
 
-    line_template = "| {} | {} | {} | {} | {} | {} | {} | {} | {} | {} | {} |"
+    line_template = "| `{}` | {} | {} | {} | {} | {} | {} | {} | {} | {} | {} |"
 
     print(line_template.format(*headers))
     print("| -- | -- | -- | -- | -- | -- | -- | -- | -- | -- | -- |")
@@ -147,6 +147,6 @@ if __name__ == "__main__":
             prom_win += 1
 
     print("result: \n\tthanos win: {}\n\tprometheus win: {}".format(
-        thanos_win / len(data),
-        prom_win / len(data)
+        thanos_win * 1.0 / len(data),
+        prom_win * 1.0 / len(data)
     ))
