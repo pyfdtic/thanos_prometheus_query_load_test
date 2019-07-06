@@ -61,7 +61,7 @@ def get_config(path_to_cfg):
 
     if config.get('config', 'show_query_result'):
         PromThanosConfig['show_query_result'] = config.getint('config',
-                                                  'show_query_result')
+                                                              'show_query_result')
 
     return PromThanosConfig
 
@@ -84,7 +84,7 @@ def query(url, pql, time_start):
         time=time_start
     )
     time_start = time.time()
-    res = requests.get(url, params=params)
+    res = requests.get(url, params)
     time_duration = time.time() - time_start
 
     return res, time_duration
@@ -96,8 +96,11 @@ def query_all(prom_url, thanos_url, time_start, pql, show_query_result=False):
 
     if show_query_result:
         print("=" * 10 + " Prometheus: {} ".format(pql) + "=" * 10)
+        print(prom_res.request.url)
         print(prom_res.json())
+
         print("=" * 10 + " Thanos: {} ".format(pql) + "=" * 10)
+        print(thanos_res.request.url)
         print(thanos_res.json())
         print('\n')
 
@@ -134,16 +137,20 @@ if __name__ == "__main__":
 
     data = list()
     thanos_win = 0
+    thanos_error = 0
+
     prom_win = 0
+    prom_error = 0
 
     for i in range(PromThanosConfig['count']):
         for pql in PromThanosConfig["promql"]:
             data.append(
-                load_test_query(pql, bool(PromThanosConfig['show_query_result']))
+                load_test_query(pql,
+                                bool(PromThanosConfig['show_query_result']))
             )
 
     line_template = "| `{}` | {} | {} | {} | {} | {} | {} | {} | {} | {} | {} |"
-
+    print("\n")
     print(line_template.format(*headers))
     print("| -- | -- | -- | -- | -- | -- | -- | -- | -- | -- | -- |")
 
@@ -166,7 +173,18 @@ if __name__ == "__main__":
         else:
             prom_win += 1
 
-    print("\n\nresult: \n\tthanos win: {}\n\tprometheus win: {}".format(
-        thanos_win * 1.0 / len(data),
-        prom_win * 1.0 / len(data)
+        if res.tstatus >= 400:
+            thanos_error += 1
+
+        if res.pstatus >= 400:
+            prom_error += 1
+
+    data_len = len(data)
+
+    print("\n\nresult: \n\tthanos win: {}\n\tthanos error: {}"
+          "\n\tprometheus win: {}\n\tprometheus error: {}".format(
+        thanos_win * 1.0 / data_len,
+        thanos_error * 1.0 / data_len,
+        prom_win * 1.0 / data_len,
+        prom_error * 1.0 / data_len
     ))
