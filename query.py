@@ -60,7 +60,7 @@ def get_config(path_to_cfg):
         PromThanosConfig['time_start'] = dt_to_ts(dt)
 
     if config.get('config', 'show_query_result'):
-        PromThanosConfig['count'] = config.getint('config',
+        PromThanosConfig['show_query_result'] = config.getint('config',
                                                   'show_query_result')
 
     return PromThanosConfig
@@ -95,11 +95,11 @@ def query_all(prom_url, thanos_url, time_start, pql, show_query_result=False):
     thanos_res, thanos_time_duration = query(thanos_url, pql, time_start)
 
     if show_query_result:
-        print("=" * 10 + "Prometheus: {}".format(pql) + "+" * 10)
+        print("=" * 10 + " Prometheus: {} ".format(pql) + "=" * 10)
         print(prom_res.json())
-        print("=" * 10 + "Thanos: {}".format(pql) + "+" * 10)
+        print("=" * 10 + " Thanos: {} ".format(pql) + "=" * 10)
         print(thanos_res.json())
-        print('\n\n\n')
+        print('\n')
 
     return ResultCsvFormat._make(
         [
@@ -128,11 +128,9 @@ if __name__ == "__main__":
     PromThanosConfig = get_config(config_file)
 
     load_test_query = partial(query_all,
-                              prom_url=PromThanosConfig['prometheus_server'],
-                              thanos_url=PromThanosConfig['thanos_server'],
-                              time_start=PromThanosConfig['time_start'],
-                              show_query_result=PromThanosConfig[
-                                  'show_query_result'])
+                              PromThanosConfig['prometheus_server'],
+                              PromThanosConfig['thanos_server'],
+                              PromThanosConfig['time_start'])
 
     data = list()
     thanos_win = 0
@@ -140,7 +138,9 @@ if __name__ == "__main__":
 
     for i in range(PromThanosConfig['count']):
         for pql in PromThanosConfig["promql"]:
-            data.append(load_test_query(pql))
+            data.append(
+                load_test_query(pql, bool(PromThanosConfig['show_query_result']))
+            )
 
     line_template = "| `{}` | {} | {} | {} | {} | {} | {} | {} | {} | {} | {} |"
 
