@@ -56,13 +56,24 @@ def get_config(path_to_cfg):
 
     if config.get('config', 'time_start'):
         time_start = config.get('config', 'time_start')
-        ts_timestamp = datetime.strptime(time_start, '%Y-%m-%d %H:%M:%S').timestamp()
-        PromThanosConfig['time_start'] = ts_timestamp
+        dt = datetime.strptime(time_start, '%Y-%m-%d %H:%M:%S')
+        PromThanosConfig['time_start'] = dt_to_ts(dt)
 
     if config.get('config', 'show_query_result'):
-        PromThanosConfig['count'] = config.getint('config', 'show_query_result')
+        PromThanosConfig['count'] = config.getint('config',
+                                                  'show_query_result')
 
     return PromThanosConfig
+
+
+def dt_to_ts(dt):
+    # convert datetime to timestamp
+    if sys.version_info.major == 3:
+        return dt.timestamp()
+
+    return time.mktime((dt.year, dt.month, dt.day,
+                        dt.hour, dt.minute, dt.second,
+                        -1, -1, -1))
 
 
 def query(url, pql, time_start):
@@ -120,7 +131,8 @@ if __name__ == "__main__":
                               prom_url=PromThanosConfig['prometheus_server'],
                               thanos_url=PromThanosConfig['thanos_server'],
                               time_start=PromThanosConfig['time_start'],
-                              show_query_result=PromThanosConfig['show_query_result'])
+                              show_query_result=PromThanosConfig[
+                                  'show_query_result'])
 
     data = list()
     thanos_win = 0
