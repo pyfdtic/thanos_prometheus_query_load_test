@@ -88,7 +88,8 @@ def query_all(prom_url, thanos_url, time_start, pql, show_query_result=False):
         print(prom_res.json())
         print("=" * 10 + "Thanos: {}".format(pql) + "+" * 10)
         print(thanos_res.json())
-
+        print('\n\n\n')
+        
     return ResultCsvFormat._make(
         [
             pql,
