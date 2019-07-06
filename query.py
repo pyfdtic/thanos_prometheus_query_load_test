@@ -40,7 +40,6 @@ def get_config(path_to_cfg):
         raise ValueError("File [{}] not Exist!".format(path_to_cfg))
 
     PromThanosConfig = dict(count=1,
-                            output_file_name='result',
                             time_start=time.time())
 
     config = ConfigParser()
@@ -54,10 +53,6 @@ def get_config(path_to_cfg):
 
     if config.get('config', 'count'):
         PromThanosConfig['count'] = config.getint('config', 'count')
-
-    if config.get('config', 'output_file_name'):
-        PromThanosConfig['output_file_name'] = config.get('config',
-                                                          'output_file_name')
 
     if config.get('config', 'time_start'):
         PromThanosConfig['time_start'] = config.getint('config', 'time_start')
@@ -146,7 +141,7 @@ if __name__ == "__main__":
         else:
             prom_win += 1
 
-    print("result: \n\tthanos win: {}\n\tprometheus win: {}".format(
+    print("\n\nresult: \n\tthanos win: {}\n\tprometheus win: {}".format(
         thanos_win * 1.0 / len(data),
         prom_win * 1.0 / len(data)
     ))
